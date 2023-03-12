@@ -19,11 +19,12 @@ class ExtendedAppBar extends StatelessWidget {
               style: Theme.of(context).typography.tall.headlineLarge,
             ),
             const SizedBox(height: 20),
-            Row(
+            Card(
+                child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [Icon(Icons.camera), Icon(Icons.door_back_door)],
-            )
+            ))
           ],
         ),
       ),
