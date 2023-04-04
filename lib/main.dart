@@ -58,7 +58,7 @@ class App extends StatelessWidget {
               child: Column(
                 children: [
                   const ExtendedAppBar(),
-                  CameraView(),
+                  //CameraView(),
                 ],
               ),
             ),
