@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
@@ -11,16 +12,35 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  static final _defaultLightColorScheme =
+      ColorScheme.fromSwatch(primarySwatch: Colors.blue);
+
+  static final _defaultDarkColorScheme = ColorScheme.fromSwatch(
+      primarySwatch: Colors.blue, brightness: Brightness.dark);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData.dark(
-        useMaterial3: true,
-      ),
-      home: App(),
-    );
+    DynamicColorPlugin.getCorePalette().then((value) => print("Got theme: $value"));
+
+    return DynamicColorBuilder(
+        builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+          print("Dark: $darkDynamic, Light: $lightDynamic");
+
+      return MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          colorScheme: lightDynamic ?? _defaultLightColorScheme,
+          useMaterial3: true,
+        ),
+        darkTheme: ThemeData(
+          colorScheme: darkDynamic ?? _defaultDarkColorScheme,
+          useMaterial3: true,
+        ),
+        themeMode: ThemeMode.dark,
+        home: App(),
+      );
+    });
   }
 }
 
@@ -33,7 +53,7 @@ class App extends StatelessWidget {
         value: SystemUiOverlayStyle.light,
         child: SizedBox.expand(
           child: Container(
-            color: Theme.of(context).scaffoldBackgroundColor,
+            color: Theme.of(context).colorScheme.background,
             child: SafeArea(
               child: Column(
                 children: [
@@ -84,8 +104,14 @@ class CameraView extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text('Salon', style: Theme.of(context).typography.tall.titleLarge,),
-                      Text('Il y a deux minutes', style: Theme.of(context).typography.tall.bodyMedium,)
+                      Text(
+                        'Salon',
+                        style: Theme.of(context).typography.tall.titleLarge,
+                      ),
+                      Text(
+                        'Il y a deux minutes',
+                        style: Theme.of(context).typography.tall.bodyMedium,
+                      )
                     ],
                   )
                 ],
