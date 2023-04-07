@@ -6,6 +6,7 @@ class ExtendedAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 400,
       padding: const EdgeInsets.all(12),
       color: Theme.of(context).colorScheme.background,
       child: Center(
@@ -13,9 +14,6 @@ class ExtendedAppBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(
-              height: 150,
-            ),
             Text(
               "SekuriKatt",
               style: Theme.of(context).typography.tall.headlineLarge,
@@ -25,14 +23,6 @@ class ExtendedAppBar extends StatelessWidget {
               "Votre maison est sécurisée!",
               style: Theme.of(context).typography.tall.bodyLarge,
             ),
-            const SizedBox(height: 40),
-            Column(
-              children: [
-                InfoModule(),
-                Divider(),
-                InfoModule(),
-              ],
-            )
           ],
         ),
       ),
@@ -45,37 +35,71 @@ class InfoModule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(children: [
-          const Icon(
-            Icons.camera_indoor_rounded,
-            size: 48,
-          ),
-          const SizedBox(
-            height: 25,
-          ),
-          SizedBox(
-            height: 40,
-            child: FittedBox(
-              fit: BoxFit.fitHeight,
-              child: Text(
-                "4 caméras",
-                style: Theme.of(context).typography.englishLike.bodyLarge,
+    var theme = Theme.of(context);
+    print(
+        "Theme: ${theme.colorScheme.background} ${theme.cardColor} ${theme.colorScheme.surface}");
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 25.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          height: 90,
+          color: Theme.of(context).colorScheme.surface,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: const [
+              IconePanel(Icons.home_rounded, label: "Accueil", selected: true,),
+              IconePanel(Icons.camera_indoor_rounded, label: "Caméras"),
+              IconePanel(
+                Icons.door_front_door_rounded,
+                label: "Portes",
               ),
-            ),
+              IconePanel(
+                Icons.history_rounded,
+                label: "Historique",
+              ),
+              IconePanel(Icons.admin_panel_settings_rounded, label: "Gérer"),
+            ],
           ),
-        ]),
-        Text(
-          "Dernier évènement il y a 10 minutes",
-          style: Theme.of(context)
-              .typography
-              .englishLike
-              .labelLarge!
-              .copyWith(color: Theme.of(context).disabledColor),
-        )
-      ],
+        ),
+      ),
+    );
+  }
+}
+
+class IconePanel extends StatelessWidget {
+  const IconePanel(this.iconData,
+      {super.key, required this.label, this.selected = false});
+  final IconData iconData;
+  final String label;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    Color bgColor = selected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface;
+    Color fgColor = selected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface;
+
+    return Expanded(
+      child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              shape: const RoundedRectangleBorder(side: BorderSide.none),
+              backgroundColor: bgColor,
+              foregroundColor: fgColor),
+          onPressed: () {},
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                iconData,
+                size: 34,
+              ),
+              SizedBox(height: 2),
+              FittedBox(
+                child: Text(label),
+              ),
+            ],
+          )),
     );
   }
 }

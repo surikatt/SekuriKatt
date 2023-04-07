@@ -21,11 +21,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    DynamicColorPlugin.getCorePalette().then((value) => print("Got theme: $value"));
+    DynamicColorPlugin.getCorePalette()
+        .then((value) => print("Got theme: $value"));
 
     return DynamicColorBuilder(
         builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-          print("Dark: $darkDynamic, Light: $lightDynamic");
+      print("Dark: $darkDynamic, Light: $lightDynamic");
 
       return MaterialApp(
         title: 'Flutter Demo',
@@ -58,7 +59,9 @@ class App extends StatelessWidget {
               child: Column(
                 children: [
                   const ExtendedAppBar(),
-                  //CameraView(),
+                  Divider(),
+                  Expanded(child: Text("E")),
+                  const InfoModule(),
                 ],
               ),
             ),
