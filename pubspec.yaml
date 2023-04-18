@@ -39,6 +39,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_vlc_player: ^7.2.0
   dynamic_color: ^1.6.2
+  mqtt5_client: ^3.3.7
+  riverpod_annotation: ^2.0.4
 
 dev_dependencies:
   flutter_test:
