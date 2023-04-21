@@ -96,11 +96,14 @@ class MqttData extends Notifier<Data> {
     return Data(appareils: []);
   }
 
+  bool waiting = false;
+
   mqtt() async {
     client.logging(on: false);
     await client.connect();
     print("Connected?: ${client.connectionStatus}");
     client.subscribe("telephone:alexis", MqttQos.exactlyOnce);
+    client.subscribe("evenements", MqttQos.exactlyOnce);
 
     client.updates.listen((event) {
       for (var element in event) {
@@ -109,15 +112,23 @@ class MqttData extends Notifier<Data> {
         var message = jsonDecode(payload);
         print("Payload: $message");
 
+        waiting = false;
+
         switch (message['type']) {
           case "appareils":
             state = Data(appareils: message["data"]);
             break;
+          case "maj":
+            var index = state.appareils.indexWhere(
+                (element) => element["id_appareil"] == message["appareil"]);
+            print(index);
+            state.appareils[index]["connecte"] = message["connecte"];
+            state = Data(appareils: state.appareils);
         }
       }
     });
 
-    fetchAppareils();
+    fetchData();
   }
 
   void fetchAppareils() {
@@ -126,6 +137,17 @@ class MqttData extends Notifier<Data> {
 
     client.publishMessage(
         "telephone:alexis", MqttQos.exactlyOnce, builder.payload!);
+  }
+
+  fetchData() async {
+    waiting = true;
+    final builder = MqttPayloadBuilder();
+    builder.addString('{"type": "requete", "requete": "appareils"}');
+
+    client.publishMessage(
+        "telephone:alexis", MqttQos.exactlyOnce, builder.payload!);
+
+    return Future.delayed(const Duration(seconds: 3));
   }
 }
 
@@ -163,20 +185,37 @@ class AppState extends ConsumerState<App> {
               child: Column(
                 children: [
                   Expanded(
-                    child: CustomScrollView(
-                      shrinkWrap: true,
-                      slivers: [
-                        ExtendedAppBar(),
-                        SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                          childCount: data.appareils.length,
-                          (context, index) {
-                            var appareil = data.appareils[index];
+                    child: RefreshIndicator(
+                      child:
+                          NotificationListener<OverscrollIndicatorNotification>(
+                        onNotification:
+                            (OverscrollIndicatorNotification overscroll) {
+                          overscroll.disallowIndicator();
+                          return false;
+                        },
+                        child: CustomScrollView(
+                          shrinkWrap: false,
+                          slivers: [
+                            ExtendedAppBar(),
+                            SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                              childCount: data.appareils.length,
+                              (context, index) {
+                                var appareil = data.appareils[index];
 
-                            return AppareilCard(nom: appareil["nom"]);
-                          },
-                        )),
-                      ],
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: AppareilCard(
+                                      nom: appareil["nom"],
+                                      connecte: appareil["connecte"]),
+                                );
+                              },
+                            )),
+                          ],
+                        ),
+                      ),
+                      onRefresh: () =>
+                          ref.read(dataProvider.notifier).fetchData(),
                     ),
                   ),
                   InfoModule(),

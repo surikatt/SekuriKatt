@@ -7,7 +7,7 @@ class ExtendedAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverAppBar(
+    return const SliverAppBar(
       pinned: true,
       expandedHeight: 400,
       flexibleSpace: FlexibleSpace(),
@@ -30,7 +30,7 @@ class FlexibleSpace extends StatelessWidget {
       final fadeStart = max(0.0, 1.0 - kToolbarHeight / deltaExtent);
       const fadeEnd = 1.0;
       final factor = 1.0 - Interval(fadeStart, fadeEnd).transform(t);
-      final textSize = 100 * Interval(0.2, 1).transform(t);
+      final textSize = 100 * const Interval(0.2, 1).transform(t);
 
       return Column(
         children: [
@@ -42,7 +42,7 @@ class FlexibleSpace extends StatelessWidget {
               ),
             ),
           ),
-          Divider(),
+          const Divider(),
         ],
       );
     });
