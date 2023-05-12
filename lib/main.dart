@@ -87,6 +87,7 @@ class Data {
   Data({required this.appareils});
 
   List appareils = [];
+  bool armee = false;
 }
 
 @Riverpod(keepAlive: true)
@@ -134,6 +135,22 @@ class MqttData extends Notifier<Data> {
   void fetchAppareils() {
     final builder = MqttPayloadBuilder();
     builder.addString('{"type": "requete", "requete": "appareils"}');
+
+    client.publishMessage(
+        "telephone:alexis", MqttQos.exactlyOnce, builder.payload!);
+  }
+
+  void armer() {
+    final builder = MqttPayloadBuilder();
+    builder.addString('{"type": "armement"}');
+
+    client.publishMessage(
+        "telephone:alexis", MqttQos.exactlyOnce, builder.payload!);
+  }
+
+  void desarmer() {
+    final builder = MqttPayloadBuilder();
+    builder.addString('{"type": "desarmement"}');
 
     client.publishMessage(
         "telephone:alexis", MqttQos.exactlyOnce, builder.payload!);

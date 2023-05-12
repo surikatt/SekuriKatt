@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:sekuri_katt/main.dart';
 
 class ExtendedAppBar extends StatelessWidget {
   const ExtendedAppBar({super.key});
@@ -15,11 +17,11 @@ class ExtendedAppBar extends StatelessWidget {
   }
 }
 
-class FlexibleSpace extends StatelessWidget {
+class FlexibleSpace extends HookConsumerWidget {
   const FlexibleSpace({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return LayoutBuilder(builder: (context, c) {
       final settings = context
           .dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
@@ -49,38 +51,59 @@ class FlexibleSpace extends StatelessWidget {
   }
 }
 
-class InfoModule extends StatelessWidget {
+class InfoModule extends HookConsumerWidget {
   const InfoModule({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var theme = Theme.of(context);
+    var armee = ref.read(dataProvider).armee;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 25.0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          height: 90,
-          color: Theme.of(context).colorScheme.surface,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: const [
-              IconePanel(
-                Icons.home_rounded,
-                label: "Accueil",
-                selected: true,
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Container(
+          padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 25.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              height: 90,
+              color: Theme.of(context).colorScheme.surface,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: const [
+                  IconePanel(
+                    Icons.home_rounded,
+                    label: "Accueil",
+                    selected: true,
+                  ),
+                  IconePanel(Icons.camera_indoor_rounded, label: "Appareils"),
+                  IconePanel(
+                    Icons.history_rounded,
+                    label: "Historique",
+                  ),
+                  IconePanel(Icons.admin_panel_settings_rounded,
+                      label: "Gérer"),
+                ],
               ),
-              IconePanel(Icons.camera_indoor_rounded, label: "Appareils"),
-              IconePanel(
-                Icons.history_rounded,
-                label: "Historique",
-              ),
-              IconePanel(Icons.admin_panel_settings_rounded, label: "Gérer"),
-            ],
+            ),
           ),
         ),
-      ),
+        Container(
+          margin: EdgeInsets.fromLTRB(0, 0, 0, 90),
+          alignment: Alignment.topCenter,
+          child: FloatingActionButton(
+            child: armee
+                ? Icon(Icons.warning_rounded)
+                : Icon(Icons.check_circle_rounded),
+            onPressed: () {
+              armee
+                  ? ref.read(dataProvider.notifier).desarmer()
+                  : ref.read(dataProvider.notifier).armer();
+            },
+          ),
+        ),
+      ],
     );
   }
 }
