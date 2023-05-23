@@ -84,9 +84,11 @@ Future mqtt() async {
 }
 
 class Data {
-  Data({required this.appareils});
+  Data(
+      {required this.appareils, required this.armee, required this.evenements});
 
   List appareils = [];
+  List evenements = [];
   bool armee = false;
 }
 
@@ -94,7 +96,7 @@ class Data {
 class MqttData extends Notifier<Data> {
   @override
   Data build() {
-    return Data(appareils: []);
+    return Data(appareils: [], armee: false, evenements: []);
   }
 
   bool waiting = false;
@@ -117,24 +119,37 @@ class MqttData extends Notifier<Data> {
 
         switch (message['type']) {
           case "appareils":
-            state = Data(appareils: message["data"]);
+            state = Data(
+                appareils: message["data"],
+                armee: state.armee,
+                evenements: state.evenements);
+            break;
+          case "evenements":
+            state = Data(
+                appareils: state.appareils,
+                armee: state.armee,
+                evenements: message["data"]);
             break;
           case "maj":
             var index = state.appareils.indexWhere(
                 (element) => element["id_appareil"] == message["appareil"]);
             print(index);
             state.appareils[index]["connecte"] = message["connecte"];
-            state = Data(appareils: state.appareils);
+            state = Data(
+                appareils: state.appareils,
+                armee: state.armee,
+                evenements: state.evenements);
         }
       }
     });
 
-    fetchData();
+    fetch();
+    fetch(type: "evenements");
   }
 
-  void fetchAppareils() {
+  void fetch({String type = "appareils"}) {
     final builder = MqttPayloadBuilder();
-    builder.addString('{"type": "requete", "requete": "appareils"}');
+    builder.addString('{"type": "requete", "requete": "$type"}');
 
     client.publishMessage(
         "telephone:alexis", MqttQos.exactlyOnce, builder.payload!);
@@ -225,6 +240,28 @@ class AppState extends ConsumerState<App> {
                                   child: AppareilCard(
                                       nom: appareil["nom"],
                                       connecte: appareil["connecte"]),
+                                );
+                              },
+                            )),
+                            SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                              childCount: data.evenements.length,
+                              (context, index) {
+                                var ev = data.evenements[index];
+
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Card(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                          "${ev["type"]}: ${ev["date"]}, (${ev["id_appareil"]})",
+                                          style: Theme.of(context)
+                                              .typography
+                                              .englishLike
+                                              .bodyMedium),
+                                    ),
+                                  ),
                                 );
                               },
                             )),
